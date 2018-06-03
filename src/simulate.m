@@ -1,0 +1,33 @@
+function simulate(settings, pop, initNetsCb, newPopCb, controllerCb, ...
+    stepEndCb, pathEndCb, mapEndCb, simEndCb, drawCb)
+    this_folder = getThisFolder();
+    addpath(sprintf('%s\untils', this_folder));
+    addpath(sprintf('%s\simulator', this_folder));
+
+    global draw; draw = true;
+    
+    gen_count = 1;
+    init_data = {};
+    init_data.pop = pop;
+    init_data.gen = 1;
+    ga( ...
+        init_data, ... % {}.pop, {}.gen
+        gen_count, ...
+        settings, ...
+        initNetsCb, ...
+        newPopCb, ...
+        controllerCb, ...
+        stepEndCb, ...
+        pathEndCb, ...
+        mapEndCb, ...
+        simEndCb, ... % needs to return fitnesses
+        drawCb);
+    
+    
+end
+
+function folder_path = getThisFolder()
+    file_path = mfilename('fullpath');
+    idx = strfind(file_path, '\');
+    folder_path = file_path(1:idx(end));
+end
