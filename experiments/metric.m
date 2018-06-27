@@ -65,11 +65,13 @@ function metric(log_folder, start_gen, end_gen, to_csv)
     for i = 1:gen_count
         best_fit_metric(i, :) = metric_data(i, best_fit_idx(i), :);
     end
-
+    
+    orange = [0.8500, 0.3250, 0.0980];
+    
     f1 = figure('Name', sprintf('%s - Best fitness', extract_fit_title()), 'NumberTitle', 'off');
     subplot(metric_count+1, 1, 1);
     hold on;
-    lines = plot(gen_numbers, best_fit, 'ob','MarkerFaceColor', 'b', 'MarkerSize',4); labels = "Fitness";
+    lines = plot(gen_numbers, best_fit, 'o','MarkerEdge', orange, 'MarkerFaceColor', orange, 'MarkerSize',4); labels = "Fitness";
     xlim([0 inf]);
     ylim([0 inf]);
     title("Best fitness");
@@ -80,7 +82,7 @@ function metric(log_folder, start_gen, end_gen, to_csv)
     for i = 1:metric_count
         subplot(metric_count + 1, 1, i + 1);
         hold on;
-        lines = plot(gen_numbers, best_fit_metric(:,i), 'ob','MarkerFaceColor', 'b', 'MarkerSize',4); labels = replace(metric_labels{i}, '_', ' ');
+        lines = plot(gen_numbers, best_fit_metric(:,i), 'o', 'MarkerEdge', orange, 'MarkerFaceColor', orange, 'MarkerSize',4); labels = replace(metric_labels{i}, '_', ' ');
         xlim([0 inf]);
         ylim([0 inf]);
         title(sprintf("Best fit - %s", labels));

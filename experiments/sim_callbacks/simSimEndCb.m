@@ -1,4 +1,4 @@
-function fits = mySimEndCb(sim_state, my_state, log_folder)
+function mySimEndCb(sim_state, my_state, log_folder)
     global logger;
     
     logger.debug('Geting position and collision counts.');
@@ -12,5 +12,5 @@ function fits = mySimEndCb(sim_state, my_state, log_folder)
     end   
     
     logger.debug('Distances | Collisions');
-    logger.debug(sprintf('\n%f\t|\t%f', [best_fit_distances, best_fit_collisions]'));  
+    logger.debug(sprintf('\n%f\t|\t%f', [my_state.distances, my_state.collisions]'));  
 end

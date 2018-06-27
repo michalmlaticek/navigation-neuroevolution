@@ -22,17 +22,17 @@ function fits = mySimEndCb(sim_state, my_state, log_folder)
     logger.debug(sprintf('Prior best fitness: %f', prior_best_fit));
     
     
-    [fits, best_fit, best_fit_distances, best_fit_collisions] = my_state.fitness();
+    [fits, best_fit, best_fit_distances, best_fit_collisions, best_fit_angle_errors] = my_state.fitness();
     
-    if mod(my_state.active_generation_num, 10) == 1 || prior_best_fit ~= best_fit
-       m_s = my_state.toStruct();
+    if mod(my_state.active_generation_num, 30) == 1 || prior_best_fit ~= best_fit
+       m_s = my_state.moToStruct();
        save(sprintf('%s/out-data-gen-%d', log_folder, my_state.active_generation_num), ...
            '-struct', 'm_s');
     end
     logger.debug(sprintf('Gen: %d - Fit: %f', my_state.active_generation_num, best_fit));
-    logger.debug('Distances | Collisions');
-    logger.debug(sprintf('\n%f\t|\t%f', [best_fit_distances, best_fit_collisions]'));    
+    logger.debug('Distances | Collisions | Angle err sum');
+    logger.debug(sprintf('\n%f\t|\t%f\t|\t%f', [best_fit_distances, best_fit_collisions, best_fit_angle_errors]'));    
 
-    my_state.reset(); % reseting internal properties for new generation
+    my_state.moReset(); % reseting internal properties for new generation
     my_state.incGenerationNum();    
 end

@@ -1,4 +1,4 @@
-function simulate(log_folder, gen_id, unique_best_idx, map_path, init_position, target_position, step_count)
+function simulate(log_folder, gen_id, unique_best_idx, map_path, init_position, target_position, step_count, gif_name)
     % simulate - triggers the simulation of a desired experiment with
     % desired population.
     %
@@ -17,7 +17,7 @@ function simulate(log_folder, gen_id, unique_best_idx, map_path, init_position, 
     %                   provide the initial position.
     %   target_position - (depends) - target position - the same rules as
     %                   for init_position applies
-    addpath(genpath('..\src'));
+    addpath(genpath('../src'));
     addpath(genpath(log_folder));
     
     addpath(sprintf('%s/sim_callbacks', getThisFolder()));
@@ -58,14 +58,14 @@ function simulate(log_folder, gen_id, unique_best_idx, map_path, init_position, 
     newPopCb = [];
     controllerCb = @(nets, state) myControllCb(nets, state);
     stepEndCb = @(step_state) simStepEndCb(step_state, my_state);
-    pathEndCb = @(path_state) simPathEndCb(path_state, my_state, log_folder);
+    pathEndCb = @(path_state) simPathEndCb(path_state, my_state, log_folder, gif_name);
     mapEndCb = @(map_state) simMapEndCb(map_state, my_state);
     simEndCb = @(sim_state) simSimEndCb(sim_state, my_state, log_folder);  
 %   I find it usefull to enable/disable visualization during evolution
 %   So I would recomend to always provide a draw callback and controll the 
 %   actuall invocation trought this global variable
     global draw; draw = true;
-    drawCb = @(state, map_id, path_id) drawMap(state, map_id, path_id, my_state.prior_states, 0.01, []);
+    drawCb = @(state, map_id, path_id) drawMap(state, map_id, path_id, my_state.prior_states, 0.005, sprintf('%s/%s', log_folder, gif_name));
     
     gen_count = 1;
     init_data = {};

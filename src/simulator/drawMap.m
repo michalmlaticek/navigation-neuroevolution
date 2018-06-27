@@ -1,4 +1,17 @@
 function [im, grid] = drawMap(state, map_id, path_id, prior_states, refresh, gif_name)
+% drawMap - provides the visual representation of the simulation
+%
+% state - the simulation state (provided internaly by simPath function)
+% map_id - numeric representation of the map currently simulated (provided internaly by simMultiPath func)
+% path_id - numeric representation of the path currently simulated (provided internaly by simMultiPath func)
+% prio_states - list of prior states (the same structure as state). 
+%               It's used for drawin the line represeting the path taken. 
+%               (BaseObject contains a placeholder property for this, but it needs to be saved using one of the callback functions)
+%               Optional: User [] if you want to skip this param
+% refresh - represents the frame rate at which the map is redrawn
+% gif_name - the name prefix to save the simulation as gif. 
+%           (map_id and path_id will be added for distinguishing)
+%           Optional: Use [] is you want to skip this param.
     grid = state.map.grid;
     bodies = state.bodies;
     sensor_lines = state.sensor_lines;
@@ -21,7 +34,8 @@ function [im, grid] = drawMap(state, map_id, path_id, prior_states, refresh, gif
     grid = drawPoint(grid, start, 3, 2);
     grid = drawPoint(grid, target, 3, 3);
     im = image(grid, 'CDataMapping', 'direct');
-    colormap(create_cmap(size(bodies, 2)));
+    cmap = create_cmap(size(bodies, 2));
+    colormap(cmap);
     axis image;
     pause(refresh);
     
@@ -32,10 +46,10 @@ function [im, grid] = drawMap(state, map_id, path_id, prior_states, refresh, gif
         if exist('path_id', 'var') && ~isempty(path_id)
             gif_name = sprintf('%s_path_%d', gif_name, path_id);
         end
-        if exist(gif_name, 'file') == 2
-            imwrite(grid,cmap,sprintf('%s.gif', gif_name),'gif','DelayTime',0.1, 'WriteMode','append'); 
+        if exist(sprintf('%s.gif', gif_name), 'file') == 2
+            imwrite(grid,cmap,sprintf('%s.gif', gif_name),'gif','DelayTime',0.005, 'WriteMode','append'); 
         else
-            imwrite(grid,cmap,sprintf('%s.gif', gif_name),'gif', 'DelayTime',0.1,  'Loopcount',inf);
+            imwrite(grid,cmap,sprintf('%s.gif', gif_name),'gif', 'DelayTime',0.005,  'Loopcount',inf);
         end
     end
 end
@@ -84,7 +98,6 @@ function cmap = create_cmap(robot_count)
        
      for i = 1: robot_count
         r_color = [i i i] / 255;
-        %s_color = [i i i] * 2 / 255;
         cmap = [cmap; r_color];
      end
 end

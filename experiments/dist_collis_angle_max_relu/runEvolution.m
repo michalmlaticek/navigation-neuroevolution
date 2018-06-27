@@ -1,4 +1,4 @@
-function runEvolution()   
+function runEvolution()    
     addPaths();
     
     global logger;
@@ -7,11 +7,13 @@ function runEvolution()
     logger.debug('Initializings settings');
     net_layout = [9 5 2];
     step_count = 500;
-    maps = cell(2, 1);
+    maps = {};
     maps{1} = mapFromImg('../../maps/moon.png', ...
         [23 23; 230 120; 220 225; 23 23], [220 30; 25 215; 23 23; 220 225]);
     maps{2} = mapFromImg('../../maps/factory.png', ...
         [25 20; 75 230; 225 235; 25 20; 175 20; 80 20], [200 145; 70 20; 50 120; 230 230; 150 180; 115 20]);
+    maps{3} = mapFromImg('../../maps/library.png', ...
+        [20 20; 25 235], [215 135; 105 60]);
     r_radius = 5;
     r_sensor_angles = [-60:20:60]';
     r_sensor_len = 40;
@@ -22,15 +24,15 @@ function runEvolution()
     save(sprintf('%s/settings', log_folder), '-struct', 'settings')
 
     logger.debug('Initializing callbacks');
-    my_state = MutableObject(settings, 150);    
+    my_state = MutableObject(settings, 150);
     
     initNetsCb = @(pop) initNets(net_layout, pop);
     newPopCb = @(pop, fits, settings) myGenPopCb(pop, fits, settings, my_state);
-    controllerCb = @(nets, step_state) myControllCb(nets, step_state);
-    stepEndCb = @(step_state) myStepEndCb(step_state, my_state);
-    pathEndCb = @(path_state) myPathEndCb(path_state, my_state);
-    mapEndCb = @(map_state) myMapEndCb(map_state, my_state);
-    simEndCb = @(sim_state) mySimEndCb(sim_state, my_state, log_folder);  
+    controllerCb = @(nets, state) myControllCb(nets, state);
+    stepEndCb = @(state) myStepEndCb(state, my_state);
+    pathEndCb = @(state) myPathEndCb(state, my_state);
+    mapEndCb = @(state) myMapEndCb(state, my_state);
+    simEndCb = @(state) mySimEndCb(state, my_state, log_folder);  
 %   I find it usefull to enable/disable visualization during evolution
 %   So I would recomend to always provide a draw callback and controll the 
 %   actuall invocation trought this global variable
@@ -44,7 +46,7 @@ function runEvolution()
     init_data.pop = newPopCb(init_pop, init_fits, settings);
     init_data.gen = 1;
     
-    gen_count = 1500;
+    gen_count = 2000;
     ga( ...
         init_data, ... % {}.pop, {}.gen
         gen_count, ...

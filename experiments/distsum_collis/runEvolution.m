@@ -1,5 +1,4 @@
 function runEvolution()
-    cd_here();    
     addPaths();
     
     
@@ -9,13 +8,13 @@ function runEvolution()
     logger.debug('Initializings settings');
     net_layout = [9 5 2];
     step_count = 500;
-    maps = cell(3, 1);
-    maps{1} = mapFromImg('../../maps/moon.png', ...
-        [23 23; 230 120; 220 225; 23 23], [220 30; 25 215; 23 23; 220 225]);
-    maps{2} = mapFromImg('../../maps/factory.png', ...
+    maps = {};
+%     maps{end+1} = mapFromImg('../../maps/moon.png', ...
+%         [23 23; 230 120; 220 225; 23 23], [220 30; 25 215; 23 23; 220 225]);
+    maps{end+1} = mapFromImg('../../maps/factory.png', ...
         [25 20; 75 230; 225 235; 25 20; 175 20; 80 20], [200 145; 70 20; 50 120; 230 230; 150 180; 115 20]);
-    maps{3} = mapFromImg('../../maps/library.png', ...
-        [20 20; 25 235], [215 135; 105 60]);
+%     maps{end+1} = mapFromImg('../../maps/library.png', ...
+%         [20 20; 25 235], [215 135; 105 60]);
     r_radius = 5;
     r_sensor_angles = [-60:20:60]';
     r_sensor_len = 40;
@@ -26,7 +25,7 @@ function runEvolution()
     save(sprintf('%s/settings', log_folder), '-struct', 'settings')
 
     logger.debug('Initializing callbacks');
-    my_state = MutableObject();    
+    my_state = MutableObject(settings, 150);    
     
     initNetsCb = @(pop) initNets(net_layout, pop);
     newPopCb = @(pop, fits, settings) myGenPopCb(pop, fits, settings, my_state);
@@ -34,14 +33,14 @@ function runEvolution()
     stepEndCb = @(state) myStepEndCb(state, my_state);
 %     stepEndCb = [];
     pathEndCb = @(state) myPathEndCb(state, my_state);
-    mapEndCb = [];
+    mapEndCb = @(state) myMapEndCb(state, my_state);
     simEndCb = @(state) mySimEndCb(state, my_state, log_folder);
     
 %   I find it usefull to enable/disable visualization during evolution
 %   So I would recomend to always provide a draw callback and controll the 
 %   actuall invocation trought this global variable
     global draw; draw = false;
-    drawCb = @(state, map_id, path_id) drawMap(state, map_id, path_id,0.01, []);
+    drawCb = @(state, map_id, path_id) drawMap(state, map_id, path_id,[], 0.01, []);
     
     logger.debug('Initializing first population');
     init_data = {};
@@ -50,7 +49,7 @@ function runEvolution()
     init_data.pop = newPopCb(init_pop, init_fits, settings);
     init_data.gen = 1;
     
-    gen_count = 1500;
+    gen_count = 3000;
     ga( ...
         init_data, ... % {}.pop, {}.gen
         gen_count, ...

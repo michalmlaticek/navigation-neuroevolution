@@ -8,6 +8,7 @@ function s = simPath( ...
     controllCb, ...
     stepEndCb, ...
     drawCb)
+% simPath - the is the function, that runs the simulation
 
     global logger
     global draw
@@ -29,36 +30,42 @@ function s = simPath( ...
     s.r = r;
     
     % add internal state params
-    s.angles = zeros(1, pop_size);
-    [s.angles, s.sensor_lines] = rotate(s.angles, r.sensor_lines, r.init_angle);
+    s.angles = zeros(1, pop_size); % aloc angles array
+    [s.angles, s.sensor_lines] = rotate(s.angles, r.sensor_lines, r.init_angle); % rotate all agents, based on initial rotation
 
-    s.positions = zeros(1, pop_size, 2) + start;
-    s.bodies = r.body + s.positions;
-    s.sensor_lines = s.sensor_lines + s.positions;
+    s.positions = zeros(1, pop_size, 2) + start; % aloc array and move to start
+    s.bodies = r.body + s.positions; % move all body coordinates to start
+    s.sensor_lines = s.sensor_lines + s.positions; % move all sensor coordinates to start
 
-    s.angle_errors = angleErrors(s.positions, s.angles, target);
-    s.target_distances = eucDist(s.positions, target, 3);
-    s.collisions = zeros(1, pop_size);
-    s.collision_idx = zeros(1, pop_size);
+    s.angle_errors = angleErrors(s.positions, s.angles, target); % calculate azimuths
+    s.target_distances = eucDist(s.positions, target, 3); % calculate target distances
+    s.collisions = zeros(1, pop_size); % aloc collision counters array and initialize to 0
+    s.collision_idx = zeros(1, pop_size); % indicator of collision occurents in current step
 
     if ~isempty(draw) && draw == true &&  ~isempty(drawCb)
-       drawCb(s);
+       drawCb(s); % draw is drawCb is provided as well as global wariable is set to true
     end
     if ~isempty(logger)
         logger.debug('Starting steps');
     end
-    for step = 1:step_count
+    for step = 1:step_count % for each step
+        % read sensors
         s.readings = readSensors(s.sensor_lines, sensor_count, sensor_len, grid);
         
-        [d_angles, speeds] = controllCb(nets, s);
+        % calculate cpontroll outputs
+        [s.d_angles, s.speeds] = controllCb(nets, s);
 
-        [s.angles, s.sensor_lines] = rotate(s.angles, r.sensor_lines, d_angles);
+        % update rotation
+        [s.angles, s.sensor_lines] = rotate(s.angles, r.sensor_lines, s.d_angles);
        
+        % update position
         [s.positions, s.bodies, s.sensor_lines, s.d_xys] = translate( ...
-            s.positions, r.body, s.sensor_lines, s.angles, speeds);
+            s.positions, r.body, s.sensor_lines, s.angles, s.speeds);
        
-        s.collision_idx = collisionIdx(grid, s.bodies, s.positions, s.d_xys, speeds, r.radius);
+        % check for collision
+        s.collision_idx = collisionIdx(grid, s.bodies, s.positions, s.d_xys, s.speeds, r.radius);
         
+        % update internal state
         s.angle_errors = angleErrors(s.positions, s.angles, target);
         s.target_distances = eucDist(s.positions, target, 3);
         s.collisions = s.collisions + s.collision_idx;

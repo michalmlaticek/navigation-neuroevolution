@@ -1,4 +1,15 @@
 function continueEvolution(gen_num, log_folder)
+% continueEvolution - continue previously stopped evolution process
+%
+% It is very simillar than the runEvolution, but it reuses the stored
+% settings object that needs to be present inside 'log_folder'
+%
+% gen_num: (generation number) the generation number from which you wish to
+%   continue. It needs to reflect an existing file, that stores the
+%   respective population.
+% log_folder: folder where the initial, or prior experiment stored results
+% to.
+
     addPaths();
     
     global logger; logger = Logger(log_folder, 'experiment.log');
